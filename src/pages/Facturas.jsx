@@ -71,7 +71,27 @@ export default function Facturas() {
     }
 
     setResultados(res)
+
+    try {
+      const usuario = JSON.parse(localStorage.getItem("usuario") || "{}")
+      const facturasValidas = res.filter(r => r.ok && r.montoIVA > 0)
+
+      if (facturasValidas.length > 0 && usuario.id) {
+        await fetch("/api/facturas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            usuario_id: usuario.id,
+            facturas: facturasValidas
+          })
+        })
+      }
+    } catch (err) {
+      console.error("Error guardando facturas:", err)
+    }
+
     setProcesando(false)
+
   }
 
   const totalIVA = resultados.filter(r => r.ok).reduce((acc, r) => acc + r.montoIVA, 0)
