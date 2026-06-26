@@ -1,7 +1,9 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
   const [mes] = useState("Junio 2026")
+  const navigate = useNavigate()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,7 +42,7 @@ export default function Dashboard() {
             <p className="text-2xl font-bold text-gray-800">₡312.500</p>
             <p className="text-xs text-gray-400 mt-1">14 facturas</p>
           </div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-blue-200 bg-blue-50">
+          <div className="bg-blue-50 rounded-xl p-5 shadow-sm border border-blue-200">
             <p className="text-sm text-blue-600 mb-1">IVA neto a pagar</p>
             <p className="text-2xl font-bold text-blue-700">₡532.700</p>
             <p className="text-xs text-blue-400 mt-1">Listo para D-150</p>
@@ -90,9 +92,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Botón generar reporte */}
-        <button className="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-          Generar reporte para TRIBU-CR
+        {/* Botón cargar facturas */}
+        <button
+          onClick={() => navigate("/facturas")}
+          className="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
+          Cargar facturas XML
         </button>
 
       </div>
