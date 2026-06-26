@@ -4,11 +4,37 @@ import { useNavigate } from "react-router-dom"
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    navigate("/dashboard")
+    setLoading(true)
+    setError("")
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error)
+        return
+      }
+
+      localStorage.setItem("usuario", JSON.stringify(data.usuario))
+      navigate("/dashboard")
+
+    } catch (err) {
+      setError("Error de conexión, intente de nuevo")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -19,6 +45,12 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-blue-700">FiscalCR</h1>
           <p className="text-gray-500 mt-1">Gestión tributaria simplificada</p>
         </div>
+
+        {error && (
+          <div className="bg-red-50 text-red-600 text-sm px-4 py-2 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
@@ -51,9 +83,10 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            Iniciar sesión
+            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
           <p className="text-center text-sm text-blue-600 cursor-pointer hover:underline">
