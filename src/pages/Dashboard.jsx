@@ -186,21 +186,26 @@ export default function Dashboard() {
         </div>
 
         {/* Botón cargar facturas */}
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
           <button
             onClick={() => navigate("/facturas")}
-            className="bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-            📂 Cargar facturas XML
+            className="bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition text-sm">
+            📂 Facturas XML
           </button>
           <button
             onClick={() => navigate("/clientes")}
-            className="bg-teal-600 text-white py-3 rounded-xl font-semibold hover:bg-teal-700 transition">
+            className="bg-teal-600 text-white py-3 rounded-xl font-semibold hover:bg-teal-700 transition text-sm">
             👥 Clientes
           </button>
           <button
+            onClick={() => navigate("/articulos")}
+            className="bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600 transition text-sm">
+            📦 Artículos
+          </button>
+          <button
             onClick={() => navigate("/historial")}
-            className="bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
-            📋 Historial de cierres
+            className="bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition text-sm">
+            📋 Historial
           </button>
         </div>
 
