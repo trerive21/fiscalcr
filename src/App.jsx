@@ -5,6 +5,7 @@ import Facturas from "./pages/Facturas"
 import Historial from "./pages/Historial"
 import Clientes from "./pages/Clientes"
 import Articulos from "./pages/Articulos"
+import Proformas from "./pages/Proformas"
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/historial" element={<Historial />} />
         <Route path="/clientes" element={<Clientes />} />
         <Route path="/articulos" element={<Articulos />} />
+        <Route path="/proformas" element={<Proformas />} />
       </Routes>
     </BrowserRouter>
   )
