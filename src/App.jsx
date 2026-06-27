@@ -3,6 +3,7 @@ import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Facturas from "./pages/Facturas"
 import Historial from "./pages/Historial"
+import Clientes from "./pages/Clientes"
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/facturas" element={<Facturas />} />
         <Route path="/historial" element={<Historial />} />
+        <Route path="/clientes" element={<Clientes />} />
       </Routes>
     </BrowserRouter>
   )
