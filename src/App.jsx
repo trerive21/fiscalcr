@@ -7,6 +7,7 @@ import Clientes from "./pages/Clientes"
 import Articulos from "./pages/Articulos"
 import Proformas from "./pages/Proformas"
 import Recibos from "./pages/Recibos"
+import ResetPassword from "./pages/ResetPassword"
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/articulos" element={<Articulos />} />
         <Route path="/proformas" element={<Proformas />} />
         <Route path="/recibos" element={<Recibos />} />
+        <Route path="/reset" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   )
