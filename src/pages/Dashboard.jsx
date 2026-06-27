@@ -19,8 +19,8 @@ export default function Dashboard() {
         if (data.ok) {
           const facturas = data.facturas || []
 
-          const ventas = facturas.filter(f => f.tipo === "venta")
-          const compras = facturas.filter(f => f.tipo === "compra")
+          const ventas = facturas.filter(f => f.tipo === "ventas" || f.tipo === "venta")
+          const compras = facturas.filter(f => f.tipo === "compras" || f.tipo === "compra")
 
           const ivaVentas = ventas.reduce((acc, f) => acc + f.monto_iva, 0)
           const ivaCompras = compras.reduce((acc, f) => acc + f.monto_iva, 0)
