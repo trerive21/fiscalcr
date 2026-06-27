@@ -22,17 +22,33 @@ export default function Dashboard() {
           const ventas = facturas.filter(f => f.tipo === "ventas" || f.tipo === "venta")
           const compras = facturas.filter(f => f.tipo === "compras" || f.tipo === "compra")
 
+          // Ventas
           const ivaVentas = ventas.reduce((acc, f) => acc + f.monto_iva, 0)
+          const netoVentas = ventas.reduce((acc, f) => acc + f.monto_neto, 0)
+          const totalVentas = ventas.reduce((acc, f) => acc + f.monto_neto + f.monto_iva, 0)
+
+          // Compras
           const ivaCompras = compras.reduce((acc, f) => acc + f.monto_iva, 0)
+          const netoCompras = compras.reduce((acc, f) => acc + f.monto_neto, 0)
+          const totalCompras = compras.reduce((acc, f) => acc + f.monto_neto + f.monto_iva, 0)
+
+          // IVA neto
           const ivaNeto = ivaVentas - ivaCompras
 
+          // Desglose por tarifa
           const por13 = facturas.filter(f => f.porcentaje_iva === 13).reduce((acc, f) => acc + f.monto_iva, 0)
           const por4 = facturas.filter(f => f.porcentaje_iva === 4).reduce((acc, f) => acc + f.monto_iva, 0)
           const por2 = facturas.filter(f => f.porcentaje_iva === 2).reduce((acc, f) => acc + f.monto_iva, 0)
           const por1 = facturas.filter(f => f.porcentaje_iva === 1).reduce((acc, f) => acc + f.monto_iva, 0)
           const maxIVA = Math.max(por13, por4, por2, por1, 1)
 
-          setDatos({ ivaVentas, ivaCompras, ivaNeto, por13, por4, por2, por1, maxIVA, totalFacturas: facturas.length })
+          setDatos({
+            ivaVentas, netoVentas, totalVentas,
+            ivaCompras, netoCompras, totalCompras,
+            ivaNeto, por13, por4, por2, por1, maxIVA,
+            totalFacturasVentas: ventas.length,
+            totalFacturasCompras: compras.length
+          })
         }
       } catch (err) {
         console.error("Error cargando datos:", err)
@@ -84,27 +100,69 @@ export default function Dashboard() {
           </span>
         </div>
 
-        {/* Tarjetas resumen */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500 mb-1">IVA cobrado (ventas)</p>
-            <p className="text-2xl font-bold text-gray-800">{fmt(datos?.ivaVentas)}</p>
-            <p className="text-xs text-gray-400 mt-1">{datos?.totalFacturas || 0} facturas</p>
+        {/* SECCIÓN 1 — Resumen comparativo */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+          <h3 className="font-semibold text-gray-700 mb-4">📊 Resumen comparativo</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+              <p className="text-sm text-blue-600 mb-1">IVA cobrado (ventas)</p>
+              <p className="text-2xl font-bold text-blue-700">{fmt(datos?.ivaVentas)}</p>
+              <p className="text-xs text-blue-400 mt-1">{datos?.totalFacturasVentas || 0} facturas</p>
+            </div>
+            <div className="bg-green-50 rounded-xl p-4 border border-green-100">
+              <p className="text-sm text-green-600 mb-1">IVA pagado (compras)</p>
+              <p className="text-2xl font-bold text-green-700">{fmt(datos?.ivaCompras)}</p>
+              <p className="text-xs text-green-400 mt-1">{datos?.totalFacturasCompras || 0} facturas</p>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+              <p className="text-sm text-indigo-600 mb-1">IVA neto a pagar</p>
+              <p className="text-2xl font-bold text-indigo-700">{fmt(datos?.ivaNeto)}</p>
+              <p className="text-xs text-indigo-400 mt-1">Listo para D-150</p>
+            </div>
           </div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500 mb-1">IVA pagado (compras)</p>
-            <p className="text-2xl font-bold text-gray-800">{fmt(datos?.ivaCompras)}</p>
+        </div>
+
+        {/* SECCIÓN 2 — Detalle Ventas */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+          <h3 className="font-semibold text-gray-700 mb-4">📤 Detalle de Ventas</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="rounded-xl p-4 border border-gray-100 bg-gray-50">
+              <p className="text-sm text-gray-500 mb-1">Monto sin IVA</p>
+              <p className="text-xl font-bold text-gray-800">{fmt(datos?.netoVentas)}</p>
+            </div>
+            <div className="rounded-xl p-4 border border-blue-100 bg-blue-50">
+              <p className="text-sm text-blue-500 mb-1">IVA total cobrado</p>
+              <p className="text-xl font-bold text-blue-700">{fmt(datos?.ivaVentas)}</p>
+            </div>
+            <div className="rounded-xl p-4 border border-blue-200 bg-blue-100">
+              <p className="text-sm text-blue-600 mb-1">Monto total con IVA</p>
+              <p className="text-xl font-bold text-blue-800">{fmt(datos?.totalVentas)}</p>
+            </div>
           </div>
-          <div className="bg-blue-50 rounded-xl p-5 shadow-sm border border-blue-200">
-            <p className="text-sm text-blue-600 mb-1">IVA neto a pagar</p>
-            <p className="text-2xl font-bold text-blue-700">{fmt(datos?.ivaNeto)}</p>
-            <p className="text-xs text-blue-400 mt-1">Listo para D-150</p>
+        </div>
+
+        {/* SECCIÓN 3 — Detalle Compras */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+          <h3 className="font-semibold text-gray-700 mb-4">📥 Detalle de Compras</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="rounded-xl p-4 border border-gray-100 bg-gray-50">
+              <p className="text-sm text-gray-500 mb-1">Monto sin IVA</p>
+              <p className="text-xl font-bold text-gray-800">{fmt(datos?.netoCompras)}</p>
+            </div>
+            <div className="rounded-xl p-4 border border-green-100 bg-green-50">
+              <p className="text-sm text-green-500 mb-1">IVA total pagado</p>
+              <p className="text-xl font-bold text-green-700">{fmt(datos?.ivaCompras)}</p>
+            </div>
+            <div className="rounded-xl p-4 border border-green-200 bg-green-100">
+              <p className="text-sm text-green-600 mb-1">Monto total con IVA</p>
+              <p className="text-xl font-bold text-green-800">{fmt(datos?.totalCompras)}</p>
+            </div>
           </div>
         </div>
 
         {/* Desglose por tarifa */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-700 mb-4">Desglose por tarifa de IVA</h3>
+          <h3 className="font-semibold text-gray-700 mb-4">📋 Desglose por tarifa de IVA</h3>
           <div className="space-y-4">
             {[
               { label: "13% estándar", valor: datos?.por13, color: "bg-blue-500" },
