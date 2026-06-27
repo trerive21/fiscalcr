@@ -89,9 +89,12 @@ export default function Login() {
             {loading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
-          <p className="text-center text-sm text-blue-600 cursor-pointer hover:underline">
-            ¿Olvidaste tu contraseña?
-          </p>
+          <button
+  type="button"
+  onClick={() => navigate("/reset")}
+  className="w-full text-center text-sm text-blue-600 hover:underline bg-transparent border-none cursor-pointer">
+  ¿Olvidaste tu contraseña?
+</button>
         </form>
 
       </div>
