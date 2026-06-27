@@ -1,6 +1,6 @@
 export async function onRequestPost({ request, env }) {
   try {
-    const { usuario_id, facturas } = await request.json()
+    const { usuario_id, tipo, facturas } = await request.json()
 
     if (!usuario_id || !facturas || facturas.length === 0) {
       return Response.json({ error: "Datos incompletos" }, { status: 400 })
@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env }) {
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `).bind(
         usuario_id,
-        factura.tipo || "venta",
+        tipo || "venta",
         factura.numero || "N/D",
         factura.fecha || new Date().toISOString().substring(0, 10),
         factura.montoNeto,
