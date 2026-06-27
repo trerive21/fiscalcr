@@ -186,11 +186,18 @@ export default function Dashboard() {
         </div>
 
         {/* Botón cargar facturas */}
-        <button
-          onClick={() => navigate("/facturas")}
-          className="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-          Cargar facturas XML
-        </button>
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={() => navigate("/facturas")}
+            className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
+            Cargar facturas XML
+          </button>
+          <button
+            onClick={() => navigate("/historial")}
+            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
+            Ver historial de cierres
+          </button>
+        </div>
 
       </div>
     </div>
