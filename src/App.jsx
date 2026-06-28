@@ -8,6 +8,7 @@ import Articulos from "./pages/Articulos"
 import Proformas from "./pages/Proformas"
 import Recibos from "./pages/Recibos"
 import ResetPassword from "./pages/ResetPassword"
+import FacturaElectronica from "./pages/FacturaElectronica"
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/proformas" element={<Proformas />} />
         <Route path="/recibos" element={<Recibos />} />
         <Route path="/reset" element={<ResetPassword />} />
+        <Route path="/factura-electronica" element={<FacturaElectronica />} />
       </Routes>
     </BrowserRouter>
   )
