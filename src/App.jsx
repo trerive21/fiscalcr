@@ -9,6 +9,7 @@ import Proformas from "./pages/Proformas"
 import Recibos from "./pages/Recibos"
 import ResetPassword from "./pages/ResetPassword"
 import FacturaElectronica from "./pages/FacturaElectronica"
+import Seguridad from "./pages/Seguridad"
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/recibos" element={<Recibos />} />
         <Route path="/reset" element={<ResetPassword />} />
         <Route path="/factura-electronica" element={<FacturaElectronica />} />
+        <Route path="/seguridad" element={<Seguridad />} />
       </Routes>
     </BrowserRouter>
   )

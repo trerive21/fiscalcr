@@ -215,6 +215,10 @@ export default function Dashboard() {
             className="bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition text-sm">
             📋 Historial
           </button>
+          <button onClick={() => navigate("/seguridad")}
+            className="bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition text-sm">
+            🔐 Seguridad
+          </button>
         </div>
 
       </div>
