@@ -10,7 +10,17 @@ export default function Historial() {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}")
   const fmt = (n) => `₡${(n || 0).toLocaleString("es-CR", { minimumFractionDigits: 2 })}`
 
+  // Mes calendario actual, usado solo como tope máximo del selector (no se declara el mes en curso)
   const mesActual = new Date().toISOString().substring(0, 7)
+
+  // Por defecto se propone el mes ANTERIOR, que es el que normalmente ya cerró y se puede declarar
+  const calcularMesAnterior = () => {
+    const hoy = new Date()
+    hoy.setMonth(hoy.getMonth() - 1)
+    return hoy.toISOString().substring(0, 7)
+  }
+
+  const [mesSeleccionado, setMesSeleccionado] = useState(calcularMesAnterior())
 
   const cargarCierres = async () => {
     try {
@@ -117,17 +127,26 @@ Generado por FiscalCR — fiscalcr.pages.dev
 
       <div className="max-w-5xl mx-auto px-6 py-8">
 
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Historial de cierres</h2>
             <p className="text-gray-500 text-sm">Declaraciones mensuales de IVA</p>
           </div>
-          <button
-            onClick={() => generarCierre(mesActual)}
-            disabled={generando}
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 text-sm">
-            {generando ? "Generando..." : `+ Cerrar ${nombreMes(mesActual)}`}
-          </button>
+          <div className="flex items-center gap-2">
+            <input
+              type="month"
+              value={mesSeleccionado}
+              max={mesActual}
+              onChange={(e) => setMesSeleccionado(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700"
+            />
+            <button
+              onClick={() => generarCierre(mesSeleccionado)}
+              disabled={generando || !mesSeleccionado}
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 text-sm">
+              {generando ? "Generando..." : `+ Cerrar ${nombreMes(mesSeleccionado)}`}
+            </button>
+          </div>
         </div>
 
         {cargando ? (
@@ -135,9 +154,9 @@ Generado por FiscalCR — fiscalcr.pages.dev
         ) : cierres.length === 0 ? (
           <div className="bg-white rounded-xl p-10 text-center border border-gray-100 shadow-sm">
             <p className="text-gray-400 text-lg mb-2">No hay cierres registrados</p>
-            <p className="text-gray-400 text-sm mb-4">Generá el cierre del mes actual para empezar</p>
+            <p className="text-gray-400 text-sm mb-4">Elegí el mes arriba y generá tu primer cierre</p>
             <button
-              onClick={() => generarCierre(mesActual)}
+              onClick={() => generarCierre(mesSeleccionado)}
               className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition text-sm">
               Generar primer cierre
             </button>
