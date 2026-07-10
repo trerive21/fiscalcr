@@ -69,6 +69,20 @@ export default function Historial() {
     }
   }
 
+  const eliminarCierre = async (cierre_id, mes) => {
+    if (!window.confirm(`¿Seguro que querés eliminar el cierre de ${nombreMes(mes)}? Esta acción no se puede deshacer.`)) return
+    try {
+      await fetch("/api/cierres", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cierre_id })
+      })
+      await cargarCierres()
+    } catch (err) {
+      console.error("Error eliminando cierre:", err)
+    }
+  }
+
   const exportarPDF = (cierre) => {
     const contenido = `
 FISCALCR — CIERRE DE MES
@@ -222,6 +236,11 @@ Generado por FiscalCR — fiscalcr.pages.dev
                       ↩ Revertir
                     </button>
                   )}
+                  <button
+                    onClick={() => eliminarCierre(cierre.id, cierre.mes)}
+                    className="text-sm bg-red-100 text-red-700 px-4 py-1.5 rounded-lg hover:bg-red-200 transition">
+                    🗑 Eliminar
+                  </button>
                 </div>
 
               </div>

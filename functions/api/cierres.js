@@ -84,3 +84,22 @@ export async function onRequestPut({ request, env }) {
     return Response.json({ error: "Error al actualizar estado" }, { status: 500 })
   }
 }
+
+export async function onRequestDelete({ request, env }) {
+  try {
+    const { cierre_id } = await request.json()
+
+    if (!cierre_id) {
+      return Response.json({ error: "cierre_id requerido" }, { status: 400 })
+    }
+
+    await env.fiscalcr_db.prepare(`
+      DELETE FROM cierres_mes WHERE id = ?
+    `).bind(cierre_id).run()
+
+    return Response.json({ ok: true, mensaje: "Cierre eliminado" })
+
+  } catch (error) {
+    return Response.json({ error: "Error al eliminar cierre" }, { status: 500 })
+  }
+}
