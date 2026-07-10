@@ -1,11 +1,31 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
+const NOMBRES_MES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+
 export default function Dashboard() {
-  const [mes] = useState("Junio 2026")
+  const [mesActivo, setMesActivo] = useState(null) // formato "2026-07"
   const [datos, setDatos] = useState(null)
   const [cargando, setCargando] = useState(true)
   const navigate = useNavigate()
+
+  const nombreMes = (mesStr) => {
+    if (!mesStr) return ""
+    const [year, month] = mesStr.split("-")
+    return `${NOMBRES_MES[parseInt(month) - 1]} ${year}`
+  }
+
+  const sumarMes = (mesStr, cantidad) => {
+    const [year, month] = mesStr.split("-").map(Number)
+    const fecha = new Date(year, month - 1 + cantidad, 1)
+    return fecha.toISOString().substring(0, 7)
+  }
+
+  const calcularVencimiento = (mesStr) => {
+    if (!mesStr) return ""
+    const [, month] = sumarMes(mesStr, 1).split("-")
+    return `15 ${NOMBRES_MES[parseInt(month) - 1].substring(0, 3).toLowerCase()}`
+  }
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -13,11 +33,37 @@ export default function Dashboard() {
         const usuario = JSON.parse(localStorage.getItem("usuario") || "{}")
         if (!usuario.id) { navigate("/"); return }
 
+        // 1. Determinar el mes activo: el mes siguiente al último cierre declarado/pagado.
+        //    Si no hay cierres previos, se usa el mes calendario anterior como valor por defecto.
+        let mesCalculado
+        try {
+          const resCierres = await fetch(`/api/cierres?usuario_id=${usuario.id}`)
+          const dataCierres = await resCierres.json()
+          const cierresCerrados = (dataCierres.cierres || [])
+            .filter(c => c.estado === "declarado" || c.estado === "pagado")
+            .sort((a, b) => b.mes.localeCompare(a.mes)) // más reciente primero
+
+          if (cierresCerrados.length > 0) {
+            mesCalculado = sumarMes(cierresCerrados[0].mes, 1)
+          } else {
+            const hoy = new Date()
+            hoy.setMonth(hoy.getMonth() - 1)
+            mesCalculado = hoy.toISOString().substring(0, 7)
+          }
+        } catch {
+          const hoy = new Date()
+          hoy.setMonth(hoy.getMonth() - 1)
+          mesCalculado = hoy.toISOString().substring(0, 7)
+        }
+        setMesActivo(mesCalculado)
+
+        // 2. Traer las facturas y filtrar SOLO las del mes activo
         const res = await fetch(`/api/facturas?usuario_id=${usuario.id}`)
         const data = await res.json()
 
         if (data.ok) {
-          const facturas = data.facturas || []
+          const todasFacturas = data.facturas || []
+          const facturas = todasFacturas.filter(f => (f.fecha || "").startsWith(mesCalculado))
 
           const ventas = facturas.filter(f => f.tipo === "ventas" || f.tipo === "venta")
           const compras = facturas.filter(f => f.tipo === "compras" || f.tipo === "compra")
@@ -93,10 +139,10 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Resumen IVA</h2>
-            <p className="text-gray-500 text-sm">{mes}</p>
+            <p className="text-gray-500 text-sm">{nombreMes(mesActivo)}</p>
           </div>
           <span className="bg-yellow-100 text-yellow-700 text-sm px-3 py-1 rounded-full font-medium">
-            Vence 15 jul
+            Vence {calcularVencimiento(mesActivo)}
           </span>
         </div>
 
