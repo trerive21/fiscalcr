@@ -265,6 +265,10 @@ export default function Dashboard() {
             className="bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition text-sm">
             🔐 Seguridad
           </button>
+          <button onClick={() => navigate("/renta")}
+            className="bg-yellow-600 text-white py-3 rounded-xl font-semibold hover:bg-yellow-700 transition text-sm">
+            📈 Renta Anual
+          </button>
         </div>
 
       </div>

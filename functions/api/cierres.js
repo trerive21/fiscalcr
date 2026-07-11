@@ -28,9 +28,9 @@ export async function onRequestPost({ request, env }) {
       return Response.json({ error: "Datos incompletos" }, { status: 400 })
     }
 
-    // Calcular totales del mes desde las facturas
+    // Calcular totales del mes desde las facturas (incluye monto_neto para Renta)
     const facturas = await env.fiscalcr_db.prepare(`
-      SELECT tipo, monto_iva FROM facturas 
+      SELECT tipo, monto_iva, monto_neto FROM facturas 
       WHERE usuario_id = ? AND strftime('%Y-%m', fecha) = ?
     `).bind(usuario_id, mes).all()
 
@@ -41,6 +41,10 @@ export async function onRequestPost({ request, env }) {
     const iva_compras = compras.reduce((acc, f) => acc + f.monto_iva, 0)
     const iva_neto = iva_ventas - iva_compras
 
+    // Montos netos (sin IVA) - se usan para el calculo de Renta
+    const neto_ventas = ventas.reduce((acc, f) => acc + (f.monto_neto || 0), 0)
+    const neto_compras = compras.reduce((acc, f) => acc + (f.monto_neto || 0), 0)
+
     // Verificar si ya existe cierre para ese mes
     const existente = await env.fiscalcr_db.prepare(`
       SELECT id FROM cierres_mes WHERE usuario_id = ? AND mes = ?
@@ -48,16 +52,16 @@ export async function onRequestPost({ request, env }) {
 
     if (existente) {
       await env.fiscalcr_db.prepare(`
-        UPDATE cierres_mes SET iva_ventas = ?, iva_compras = ?, iva_neto = ? WHERE id = ?
-      `).bind(iva_ventas, iva_compras, iva_neto, existente.id).run()
+        UPDATE cierres_mes SET iva_ventas = ?, iva_compras = ?, iva_neto = ?, neto_ventas = ?, neto_compras = ? WHERE id = ?
+      `).bind(iva_ventas, iva_compras, iva_neto, neto_ventas, neto_compras, existente.id).run()
     } else {
       await env.fiscalcr_db.prepare(`
-        INSERT INTO cierres_mes (usuario_id, mes, iva_ventas, iva_compras, iva_neto)
-        VALUES (?, ?, ?, ?, ?)
-      `).bind(usuario_id, mes, iva_ventas, iva_compras, iva_neto).run()
+        INSERT INTO cierres_mes (usuario_id, mes, iva_ventas, iva_compras, iva_neto, neto_ventas, neto_compras)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(usuario_id, mes, iva_ventas, iva_compras, iva_neto, neto_ventas, neto_compras).run()
     }
 
-    return Response.json({ ok: true, mensaje: `Cierre de ${mes} generado`, iva_ventas, iva_compras, iva_neto })
+    return Response.json({ ok: true, mensaje: `Cierre de ${mes} generado`, iva_ventas, iva_compras, iva_neto, neto_ventas, neto_compras })
 
   } catch (error) {
     return Response.json({ error: "Error al generar cierre" }, { status: 500 })
