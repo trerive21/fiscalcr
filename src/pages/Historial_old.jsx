@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import Sidebar from "../components/Sidebar"
 
 export default function Historial() {
   const [cierres, setCierres] = useState([])
@@ -140,9 +139,7 @@ Generado por FiscalCR — fiscalcr.pages.dev
         </div>
       </nav>
 
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
 
         <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
           <div>
@@ -250,7 +247,6 @@ Generado por FiscalCR — fiscalcr.pages.dev
             ))}
           </div>
         )}
-      </div>
       </div>
     </div>
   )

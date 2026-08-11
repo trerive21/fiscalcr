@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import Sidebar from "../components/Sidebar"
 
 const NOMBRES_MES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
 
@@ -134,9 +133,7 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
 
         {/* Encabezado */}
         <div className="flex justify-between items-center mb-6">
@@ -274,7 +271,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-      </div>
       </div>
     </div>
   )

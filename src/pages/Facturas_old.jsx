@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import Sidebar from "../components/Sidebar"
 
 export default function Facturas() {
   const [tab, setTab] = useState("ventas")
@@ -205,9 +204,7 @@ export default function Facturas() {
         </div>
       </nav>
 
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
 
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Facturas electrónicas</h2>
         <p className="text-gray-500 text-sm mb-6">Cargá tus facturas de ventas y compras por separado</p>
@@ -426,7 +423,6 @@ export default function Facturas() {
           </div>
         )}
 
-      </div>
       </div>
     </div>
   )

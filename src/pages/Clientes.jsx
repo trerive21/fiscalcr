@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/Sidebar"
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([])
@@ -124,7 +125,9 @@ export default function Clientes() {
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
 
         {/* Encabezado */}
         <div className="flex justify-between items-center mb-6">
@@ -265,6 +268,7 @@ export default function Clientes() {
         </div>
       )}
 
+      </div>
     </div>
   )
 }

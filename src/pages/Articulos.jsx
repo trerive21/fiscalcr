@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/Sidebar"
 
 export default function Articulos() {
   const [articulos, setArticulos] = useState([])
@@ -110,7 +111,9 @@ export default function Articulos() {
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
 
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -255,6 +258,7 @@ export default function Articulos() {
         </div>
       )}
 
+      </div>
     </div>
   )
 }

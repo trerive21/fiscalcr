@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/Sidebar"
 
 export default function Recibos() {
   const [recibos, setRecibos] = useState([])
@@ -181,7 +182,9 @@ Generado por FiscalCR — fiscalcr.pages.dev
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
 
         {/* LISTA */}
         {vista === "lista" && (
@@ -425,6 +428,7 @@ Generado por FiscalCR — fiscalcr.pages.dev
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   )

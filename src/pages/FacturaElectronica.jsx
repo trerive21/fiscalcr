@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import Sidebar from "../components/Sidebar"
 
 export default function FacturaElectronica() {
   const [clientes, setClientes] = useState([])
@@ -130,7 +131,9 @@ export default function FacturaElectronica() {
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 max-w-5xl mx-auto px-6 py-8">
 
         {/* LISTA */}
         {vista === "lista" && (
@@ -337,6 +340,7 @@ export default function FacturaElectronica() {
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   )
