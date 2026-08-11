@@ -49,3 +49,26 @@ export async function onRequestGet({ request, env }) {
     return Response.json({ error: "Error al obtener facturas" }, { status: 500 })
   }
 }
+
+export async function onRequestDelete({ request, env }) {
+  try {
+    const body = await request.json()
+
+    // Soporta borrar una sola factura ({ factura_id }) o varias a la vez ({ factura_ids: [...] })
+    const ids = body.factura_ids || (body.factura_id ? [body.factura_id] : [])
+
+    if (ids.length === 0) {
+      return Response.json({ error: "factura_id o factura_ids requerido" }, { status: 400 })
+    }
+
+    const placeholders = ids.map(() => "?").join(",")
+    await env.fiscalcr_db.prepare(`
+      DELETE FROM facturas WHERE id IN (${placeholders})
+    `).bind(...ids).run()
+
+    return Response.json({ ok: true, mensaje: `${ids.length} factura(s) eliminada(s)` })
+
+  } catch (error) {
+    return Response.json({ error: "Error al eliminar facturas" }, { status: 500 })
+  }
+}

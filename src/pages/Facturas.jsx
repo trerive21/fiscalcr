@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
 export default function Facturas() {
@@ -8,6 +8,87 @@ export default function Facturas() {
   const [resultados, setResultados] = useState([])
   const [guardado, setGuardado] = useState(false)
   const navigate = useNavigate()
+
+  // --- Facturas ya guardadas en la base de datos ---
+  const [facturasGuardadas, setFacturasGuardadas] = useState([])
+  const [cargandoGuardadas, setCargandoGuardadas] = useState(true)
+  const [seleccionadas, setSeleccionadas] = useState([])
+  const [eliminando, setEliminando] = useState(false)
+
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}")
+
+  const cargarFacturasGuardadas = async () => {
+    setCargandoGuardadas(true)
+    try {
+      const res = await fetch(`/api/facturas?usuario_id=${usuario.id}`)
+      const data = await res.json()
+      if (data.ok) setFacturasGuardadas(data.facturas)
+    } catch (err) {
+      console.error("Error cargando facturas guardadas:", err)
+    } finally {
+      setCargandoGuardadas(false)
+    }
+  }
+
+  useEffect(() => {
+    cargarFacturasGuardadas()
+  }, [])
+
+  useEffect(() => {
+    setSeleccionadas([])
+  }, [tab])
+
+  const facturasDelTab = facturasGuardadas.filter(f =>
+    tab === "ventas" ? (f.tipo === "ventas" || f.tipo === "venta") : (f.tipo === "compras" || f.tipo === "compra")
+  )
+
+  const toggleSeleccion = (id) => {
+    setSeleccionadas(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  const toggleSeleccionarTodas = () => {
+    if (seleccionadas.length === facturasDelTab.length) {
+      setSeleccionadas([])
+    } else {
+      setSeleccionadas(facturasDelTab.map(f => f.id))
+    }
+  }
+
+  const eliminarSeleccionadas = async () => {
+    if (seleccionadas.length === 0) return
+    if (!window.confirm(`¿Seguro que querés eliminar ${seleccionadas.length} factura(s)? Esta acción no se puede deshacer.`)) return
+
+    setEliminando(true)
+    try {
+      await fetch("/api/facturas", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ factura_ids: seleccionadas })
+      })
+      setSeleccionadas([])
+      await cargarFacturasGuardadas()
+    } catch (err) {
+      console.error("Error eliminando facturas:", err)
+    } finally {
+      setEliminando(false)
+    }
+  }
+
+  const eliminarUna = async (id) => {
+    if (!window.confirm("¿Seguro que querés eliminar esta factura? Esta acción no se puede deshacer.")) return
+    try {
+      await fetch("/api/facturas", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ factura_id: id })
+      })
+      await cargarFacturasGuardadas()
+    } catch (err) {
+      console.error("Error eliminando factura:", err)
+    }
+  }
+
+  const fmt = (n) => `₡${(n || 0).toLocaleString("es-CR", { minimumFractionDigits: 2 })}`
 
   const handleArchivos = (e) => {
     const files = Array.from(e.target.files)
@@ -74,7 +155,6 @@ export default function Facturas() {
     setResultados(res)
 
     try {
-      const usuario = JSON.parse(localStorage.getItem("usuario") || "{}")
       const facturasValidas = res.filter(r => r.ok && r.montoIVA > 0)
 
       if (facturasValidas.length > 0 && usuario.id) {
@@ -87,7 +167,10 @@ export default function Facturas() {
             facturas: facturasValidas
           })
         })
-        if (response.ok) setGuardado(true)
+        if (response.ok) {
+          setGuardado(true)
+          await cargarFacturasGuardadas()
+        }
       }
     } catch (err) {
       console.error("Error guardando facturas:", err)
@@ -201,7 +284,7 @@ export default function Facturas() {
           </div>
         )}
 
-        {/* Resultados */}
+        {/* Resultados del procesamiento reciente */}
         {resultados.length > 0 && (
           <>
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -223,7 +306,7 @@ export default function Facturas() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
@@ -263,6 +346,83 @@ export default function Facturas() {
             </div>
           </>
         )}
+
+        {/* Facturas ya guardadas — permite seleccionar y eliminar puntuales */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-bold text-gray-800">
+            Facturas guardadas — {tab === "ventas" ? "Ventas" : "Compras"}
+          </h3>
+          {seleccionadas.length > 0 && (
+            <button
+              onClick={eliminarSeleccionadas}
+              disabled={eliminando}
+              className="text-sm bg-red-600 text-white px-4 py-1.5 rounded-lg hover:bg-red-700 transition disabled:opacity-50">
+              🗑 {eliminando ? "Eliminando..." : `Eliminar seleccionadas (${seleccionadas.length})`}
+            </button>
+          )}
+        </div>
+
+        {cargandoGuardadas ? (
+          <p className="text-gray-500 text-sm">Cargando facturas guardadas...</p>
+        ) : facturasDelTab.length === 0 ? (
+          <div className="bg-white rounded-xl p-8 text-center border border-gray-100 shadow-sm">
+            <p className="text-gray-400 text-sm">No hay facturas guardadas en esta categoría</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={seleccionadas.length === facturasDelTab.length && facturasDelTab.length > 0}
+                      onChange={toggleSeleccionarTodas}
+                    />
+                  </th>
+                  <th className="text-left px-4 py-3 text-gray-600 font-medium">Número</th>
+                  <th className="text-left px-4 py-3 text-gray-600 font-medium">Fecha</th>
+                  <th className="text-right px-4 py-3 text-gray-600 font-medium">Neto</th>
+                  <th className="text-right px-4 py-3 text-gray-600 font-medium">IVA %</th>
+                  <th className="text-right px-4 py-3 text-gray-600 font-medium">IVA ₡</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {facturasDelTab.map((f) => (
+                  <tr key={f.id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={seleccionadas.includes(f.id)}
+                        onChange={() => toggleSeleccion(f.id)}
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-gray-700 max-w-xs truncate">{f.numero}</td>
+                    <td className="px-4 py-3 text-gray-600">{f.fecha}</td>
+                    <td className="px-4 py-3 text-right text-gray-800">{fmt(f.monto_neto)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${
+                        tab === "ventas" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"
+                      }`}>{f.porcentaje_iva}%</span>
+                    </td>
+                    <td className={`px-4 py-3 text-right font-medium ${
+                      tab === "ventas" ? "text-blue-700" : "text-green-700"
+                    }`}>{fmt(f.monto_iva)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => eliminarUna(f.id)}
+                        className="text-red-500 hover:text-red-700 text-xs font-medium">
+                        🗑 Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
       </div>
     </div>
   )
